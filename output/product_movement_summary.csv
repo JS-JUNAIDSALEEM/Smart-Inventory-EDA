@@ -1,0 +1,6 @@
+Product,Total_Stock_In,Total_Stock_Out,Net_Movement,Total_Transactions,Opening_Stock,Current_Stock,Reorder_Level,Stock_Status
+Headphones,27,24,3,6,60,63,25,Stock Available
+Keyboard,10,28,-18,6,80,62,35,Stock Available
+Monitor,18,11,7,6,40,47,20,Stock Available
+Mouse,12,42,-30,6,100,70,50,Stock Available
+USB Cable,45,26,19,6,120,139,40,Stock Available
