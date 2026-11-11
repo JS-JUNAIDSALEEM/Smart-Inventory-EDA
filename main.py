@@ -13,9 +13,7 @@ def validate_data(df, opening_stock, reorder_level):
         "Unique Transaction IDs": df["Transaction_ID"].is_unique,
         "No Negative Quantities": (df["Quantity"] >= 0).all(),
         "No Missing Values": df.isnull().sum().sum() == 0,
-        "Valid Movement Types": df["Movement_Type"].isin(
-            ["Stock In", "Stock Out"]
-        ).all(),
+        "Valid Movement Types": df["Movement_Type"].isin(["Stock In", "Stock Out"]).all(),
         "Valid Dates": df["Date"].notnull().all(),
         "Valid Products": df["Product"].isin(opening_stock.keys()).all(),
         "Opening Stock Available": df["Product"].isin(opening_stock.keys()).all(),
@@ -27,10 +25,12 @@ def validate_data(df, opening_stock, reorder_level):
 
 def main():
 
-    # Create output folder
-    os.makedirs("output", exist_ok=True)
+# Create output folder
 
-    # Inventory transactions data
+    os.makedirs("output/csv_reports", exist_ok=True)
+    os.makedirs("output/visualizations", exist_ok=True)
+
+# Inventory transactions data
     data = [
         {"Transaction_ID": 1,   "Date": "2026-01-01",  "Product": "Mouse",       "Movement_Type": "Stock Out",   "Quantity": 5},
         {"Transaction_ID": 2,   "Date": "2026-01-01",  "Product": "Keyboard",    "Movement_Type": "Stock Out",   "Quantity": 3},
@@ -88,7 +88,8 @@ def main():
         "Headphones": 25
     }
 
-    # 1. Basic data validation
+# 1. Basic data validation
+
     print("\n============= DATA VALIDATION =============\n")
 
     validation_results = validate_data(df, opening_stock, reorder_level)
@@ -105,7 +106,8 @@ def main():
     print("\n=============== INVENTORY TRANSACTION DATA ================\n")
     print(df.to_string(index=False))
 
-    # 2. Analyze stock movement
+# 2. Analyze stock movement
+
     print("\n================== STOCK MOVEMENT ANALYSIS ==================\n")
 
     # Stock In increases stock and Stock Out decreases stock
@@ -122,7 +124,8 @@ def main():
     print("Total Stock Out:", total_stock_out)
     print("Net Stock Movement:", df["Stock_Change"].sum())
 
-    # 3. Product movement summary
+# 3. Product movement summary
+
     product_summary = df.groupby("Product").agg(
         Total_Stock_In=("Stock_Change", lambda x: x[x > 0].sum()),
         Total_Stock_Out=("Stock_Change", lambda x: abs(x[x < 0].sum())),
@@ -150,25 +153,22 @@ def main():
     print("\n=================================================== PRODUCT MOVEMENT SUMMARY ======================================================\n")
     print(product_summary.to_string(index=False))
 
-    # 4. Find fast-moving and slow-moving products
+# 4. Find fast-moving and slow-moving products
+
     print("\n========== PRODUCT DEMAND ANALYSIS ==========")
 
     demand_summary = product_summary[["Product", "Total_Stock_Out"]].copy()
 
-    demand_summary = demand_summary.sort_values(
-        by="Total_Stock_Out",
-        ascending=False
-    )
+    demand_summary = demand_summary.sort_values( by="Total_Stock_Out", ascending=False)
 
     print("\nFast Moving Products:")
     print(demand_summary.head(2).to_string(index=False))
 
     print("\nSlow Moving Products:")
-    print(demand_summary.tail(2).sort_values(
-        by="Total_Stock_Out"
-    ).to_string(index=False))
+    print(demand_summary.tail(2).sort_values( by="Total_Stock_Out").to_string(index=False))
 
-    # 5. Compare first week and second week demand
+# 5. Compare first week and second week demand
+
     print("\n================= WEEKLY DEMAND TREND ===================\n")
 
     first_week = df[
@@ -215,15 +215,14 @@ def main():
 
     print(weekly_summary.to_string(index=False))
 
-    # 6. Find unusual stock-out movements
+# 6. Find unusual stock-out movements
+
     print("\n============== UNUSUAL STOCK MOVEMENTS =================\n")
 
     stock_out_data = df[df["Movement_Type"] == "Stock Out"].copy()
 
     # Calculate average stock-out quantity for each product
-    stock_out_data["Average_Demand"] = (
-        stock_out_data.groupby("Product")["Quantity"].transform("mean")
-    )
+    stock_out_data["Average_Demand"] = (stock_out_data.groupby("Product")["Quantity"].transform("mean"))
 
     # Find unusually large stock-out quantities
     unusual_movements = stock_out_data[stock_out_data["Quantity"] > stock_out_data["Average_Demand"] * 1.5].copy()
@@ -233,22 +232,21 @@ def main():
     if unusual_movements.empty:
         print("No unusual stock movements found.")
     else:
-        print(unusual_movements[
-            ["Date", "Product", "Quantity", "Average_Demand"]
-        ].to_string(index=False))
+        print(unusual_movements[["Date", "Product", "Quantity", "Average_Demand"]].to_string(index=False))
 
-    # 7. Analyze weekday-wise demand
+# 7. Analyze weekday-wise demand
+
     print("\n========== WEEKDAY DEMAND ANALYSIS ==========\n")
 
     df["Day"] = df["Date"].dt.day_name()
 
     weekday_summary = df[df["Movement_Type"] == "Stock Out"].groupby("Day")["Quantity"].sum().reset_index()
-
     weekday_summary = weekday_summary.sort_values(by="Quantity", ascending=False)
 
     print(weekday_summary.to_string(index=False))
 
-    # 8. Create reorder alerts
+# 8. Create reorder alerts
+
     print("\n========== REORDER ALERTS ==========\n")
 
     reorder_alerts = product_summary[
@@ -262,7 +260,8 @@ def main():
             ["Product", "Current_Stock", "Reorder_Level"]
         ].to_string(index=False))
 
-    # 9. Daily stock movement summary
+# 9. Daily stock movement summary
+
     daily_summary = df.groupby("Date").agg(
         Total_Stock_In=("Stock_Change", lambda x: x[x > 0].sum()),
         Total_Stock_Out=("Stock_Change", lambda x: abs(x[x < 0].sum())),
@@ -272,7 +271,8 @@ def main():
     print("\n================ DAILY MOVEMENT SUMMARY ================\n")
     print(daily_summary.to_string(index=False))
 
-    # 10. Create charts
+# 10. Create charts
+
     sns.set_theme(style="whitegrid")
 
     # Chart 1: Product demand
@@ -288,7 +288,7 @@ def main():
     plt.xlabel("Product")
     plt.ylabel("Total Stock Out")
     plt.tight_layout()
-    plt.savefig("output/product_demand.png")
+    plt.savefig("output/visualizations/product_demand.png")
     plt.show()
 
     # Chart 2: Daily stock-out trend
@@ -306,7 +306,7 @@ def main():
     plt.ylabel("Stock Out Quantity")
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig("output/daily_stock_out_trend.png")
+    plt.savefig("output/visualizations/daily_stock_out_trend.png")
     plt.show()
 
     # Chart 3: Weekday demand
@@ -323,37 +323,37 @@ def main():
     plt.ylabel("Total Demand")
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig("output/weekday_demand.png")
+    plt.savefig("output/visualizations/weekday_demand.png")
     plt.show()
 
     # 11. Export reports
     product_summary.to_csv(
-        "output/product_movement_summary.csv",
+        "output/csv_reports/product_movement_summary.csv",
         index=False
     )
 
     weekly_summary.to_csv(
-        "output/weekly_demand_trend.csv",
+        "output/csv_reports/weekly_demand_trend.csv",
         index=False
     )
 
     daily_summary.to_csv(
-        "output/daily_movement_summary.csv",
+        "output/csv_reports/daily_movement_summary.csv",
         index=False
     )
 
     unusual_movements.to_csv(
-        "output/unusual_stock_movements.csv",
+        "output/csv_reports/unusual_stock_movements.csv",
         index=False
     )
 
     reorder_alerts.to_csv(
-        "output/reorder_alerts.csv",
+        "output/csv_reports/reorder_alerts.csv",
         index=False
     )
 
     weekday_summary.to_csv(
-        "output/weekday_demand_summary.csv",
+        "output/csv_reports/weekday_demand_summary.csv",
         index=False
     )
 

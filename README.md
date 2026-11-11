@@ -53,15 +53,19 @@ Smart-Inventory-EDA/
 │   └── test_analysis.py
 │
 └── output/
-    ├── product_movement_summary.csv
-    ├── weekly_demand_trend.csv
-    ├── daily_movement_summary.csv
-    ├── unusual_stock_movements.csv
-    ├── reorder_alerts.csv
-    ├── weekday_demand_summary.csv
-    ├── product_demand.png
-    ├── daily_stock_out_trend.png
-    └── weekday_demand.png
+    │
+    ├── csv_reports/
+    │   ├── product_movement_summary.csv
+    │   ├── weekly_demand_trend.csv
+    │   ├── daily_movement_summary.csv
+    │   ├── unusual_stock_movements.csv
+    │   ├── reorder_alerts.csv
+    │   └── weekday_demand_summary.csv
+    │
+    └── visualizations/
+        ├── product_demand.png
+        ├── daily_stock_out_trend.png
+        └── weekday_demand.png
 ```
 
 ## Installation
