@@ -23,7 +23,10 @@ The dataset is manually created using Python dictionaries.
 - Analyze weekday-wise demand
 - Generate reorder alerts
 - Analyze daily stock movement
-- Perform basic data validation
+- Perform data validation using a reusable function
+- Check duplicate transaction IDs
+- Check negative quantities and missing values
+- Validate dates, movement types, and product names
 - Create data visualization charts
 - Export analysis reports to CSV files
 
@@ -34,6 +37,7 @@ The dataset is manually created using Python dictionaries.
 - NumPy
 - Matplotlib
 - Seaborn
+- Unittest
 
 ## Project Structure
 
@@ -44,6 +48,9 @@ Smart-Inventory-EDA/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
+│
+├── tests/
+│   └── test_analysis.py
 │
 └── output/
     ├── product_movement_summary.csv
@@ -83,6 +90,26 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## Testing
+
+This project uses Python's built-in `unittest` framework to test the data validation function.
+
+To run the tests, use:
+
+```bash
+ py -m unittest tests/test_analysis.py -v
+```
+
+The tests check:
+
+- Valid transaction data
+- Duplicate transaction IDs
+- Negative quantities
+- Missing values
+- Invalid movement types
+- Invalid dates
+- Unknown products
+
 ## Reports
 
 The project generates different reports inside the output folder:
@@ -115,6 +142,8 @@ While making this project, I practiced:
 - Finding unusual data records
 - Creating charts using Matplotlib and Seaborn
 - Exporting analysis reports to CSV files
+- Performing data validation
+- Writing automated tests using unittest
 
 ## Future Improvements
 
